@@ -5,3 +5,4 @@ dist
 !.vscode/extensions.json
 .DS_Store
 .env
+.cursor/rules/screenshot.png
