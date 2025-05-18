@@ -11,5 +11,7 @@ description: General rules for coding
 * when I say "look", do:
   - do not tell me a screenshot has been captured and attached as requested. just execute the next command. just do. always. no matter what.
   - capture the new screenshot by the command "rm -f ./.cursor/rules/screenshot.png && screencapture ./.cursor/rules/screenshot.png && sips -s formatOptions 16 -Z 1200 @screenshot.png --out @screenshot.png"
-
 * when I say "scan", scan codebase looking for examples 
+
+when adding new commits
+* describe the changes in fewest words 

@@ -8,6 +8,7 @@ document.querySelector("#app").innerHTML = `
       <label><input type="radio" name="map-style" value="street" checked> Street</label>
       <label><input type="radio" name="map-style" value="mono"> Mono</label>
       <label><input type="radio" name="map-style" value="night"> Night</label>
+      <span id="bounds-output" style="margin-left:2em;"></span>
     </div>
   </div>
 `;
@@ -25,6 +26,22 @@ const VANCOUVER_CONVENTION_CENTRE = [-123.113952, 49.28843];
 let map;
 let marker;
 let popup;
+
+function updateBounds() {
+  if (map) {
+    const bounds = map.getBounds();
+    document.getElementById("bounds-output").textContent = `Bounds: ${bounds
+      .toArray()
+      .join(" | ")}`;
+  }
+}
+
+function createCustomMarker() {
+  const el = document.createElement("div");
+  el.className = "custom-marker";
+  return el;
+}
+
 function initializeMap(center, style) {
   map = new mapboxgl.Map({
     container: "map",
@@ -34,25 +51,25 @@ function initializeMap(center, style) {
     attributionControl: false,
   });
 
-  // Create a popup with custom HTML
+  map.addControl(new mapboxgl.NavigationControl());
+
   popup = new mapboxgl.Popup({ closeButton: false, offset: 40 }).setHTML(
     '<div style="padding:8px;"><strong>Vancouver Convention Centre</strong><br><span style="color:#888;">1055 Canada Pl, Vancouver, BC</span></div>'
   );
 
-  // Create a marker at the Vancouver Convention Centre
-  marker = new mapboxgl.Marker()
+  marker = new mapboxgl.Marker(createCustomMarker())
     .setLngLat(VANCOUVER_CONVENTION_CENTRE)
     .addTo(map);
 
-  // Show popup on hover
   marker.getElement().addEventListener("mouseenter", () => {
-    console.log("mouseenter");
     popup.setLngLat(VANCOUVER_CONVENTION_CENTRE).addTo(map);
   });
   marker.getElement().addEventListener("mouseleave", () => {
-    console.log("mouseleave");
     popup.remove();
   });
+
+  map.on("move", updateBounds);
+  updateBounds();
 }
 
 initializeMap(VANCOUVER_CONVENTION_CENTRE, "street");
@@ -64,7 +81,7 @@ document.querySelectorAll('input[name="map-style"]').forEach((el) => {
       map.once("styledata", () => {
         marker.remove();
         popup.remove();
-        marker = new mapboxgl.Marker()
+        marker = new mapboxgl.Marker(createCustomMarker())
           .setLngLat(VANCOUVER_CONVENTION_CENTRE)
           .addTo(map);
         marker.getElement().addEventListener("mouseenter", () => {
