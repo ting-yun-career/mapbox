@@ -42,6 +42,24 @@ function createCustomMarker() {
   return el;
 }
 
+function createPopup(lngLat) {
+  return new mapboxgl.Popup({ closeButton: false, offset: 25 }).setHTML(
+    '<div style="padding:8px;"><strong>Vancouver Convention Centre</strong><br><span style="color:#888;">1055 Canada Pl, Vancouver, BC</span></div>'
+  );
+}
+
+function addMarkerWithPopup({ lngLat, markerEl, popup, map }) {
+  const m = markerEl ? new mapboxgl.Marker(markerEl) : new mapboxgl.Marker();
+  m.setLngLat(lngLat).setPopup(popup).addTo(map);
+  m.getElement().addEventListener("mouseenter", () => {
+    popup.setLngLat(lngLat).addTo(map);
+  });
+  m.getElement().addEventListener("mouseleave", () => {
+    popup.remove();
+  });
+  return m;
+}
+
 function initializeMap(center, style) {
   map = new mapboxgl.Map({
     container: "map",
@@ -53,19 +71,23 @@ function initializeMap(center, style) {
 
   map.addControl(new mapboxgl.NavigationControl());
 
-  popup = new mapboxgl.Popup({ closeButton: false, offset: 40 }).setHTML(
-    '<div style="padding:8px;"><strong>Vancouver Convention Centre</strong><br><span style="color:#888;">1055 Canada Pl, Vancouver, BC</span></div>'
-  );
-
-  marker = new mapboxgl.Marker(createCustomMarker())
-    .setLngLat(VANCOUVER_CONVENTION_CENTRE)
-    .addTo(map);
-
-  marker.getElement().addEventListener("mouseenter", () => {
-    popup.setLngLat(VANCOUVER_CONVENTION_CENTRE).addTo(map);
+  popup = createPopup(VANCOUVER_CONVENTION_CENTRE);
+  marker = addMarkerWithPopup({
+    lngLat: VANCOUVER_CONVENTION_CENTRE,
+    markerEl: createCustomMarker(),
+    popup,
+    map,
   });
-  marker.getElement().addEventListener("mouseleave", () => {
-    popup.remove();
+  const defaultMarkerLngLat = [
+    VANCOUVER_CONVENTION_CENTRE[0] + 0.001,
+    VANCOUVER_CONVENTION_CENTRE[1],
+  ];
+  const defaultMarkerPopup = createPopup(defaultMarkerLngLat);
+  addMarkerWithPopup({
+    lngLat: defaultMarkerLngLat,
+    markerEl: null,
+    popup: defaultMarkerPopup,
+    map,
   });
 
   map.on("move", updateBounds);
@@ -81,14 +103,22 @@ document.querySelectorAll('input[name="map-style"]').forEach((el) => {
       map.once("styledata", () => {
         marker.remove();
         popup.remove();
-        marker = new mapboxgl.Marker(createCustomMarker())
-          .setLngLat(VANCOUVER_CONVENTION_CENTRE)
-          .addTo(map);
-        marker.getElement().addEventListener("mouseenter", () => {
-          popup.setLngLat(VANCOUVER_CONVENTION_CENTRE).addTo(map);
+        marker = addMarkerWithPopup({
+          lngLat: VANCOUVER_CONVENTION_CENTRE,
+          markerEl: createCustomMarker(),
+          popup,
+          map,
         });
-        marker.getElement().addEventListener("mouseleave", () => {
-          popup.remove();
+        const defaultMarkerLngLat2 = [
+          VANCOUVER_CONVENTION_CENTRE[0] + 0.001,
+          VANCOUVER_CONVENTION_CENTRE[1],
+        ];
+        const defaultMarkerPopup2 = createPopup(defaultMarkerLngLat2);
+        addMarkerWithPopup({
+          lngLat: defaultMarkerLngLat2,
+          markerEl: null,
+          popup: defaultMarkerPopup2,
+          map,
         });
       });
     }
