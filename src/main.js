@@ -105,12 +105,16 @@ function initializeMap(center, style) {
       "source-layer": "waterfront",
       paint: {
         "fill-color": ["get", "fill"],
-        "fill-opacity": 0.4,
+        "fill-opacity": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          0.4,
+          0.2,
+        ],
         "fill-outline-color": ["get", "stroke"],
       },
     });
 
-    // Add waterfront-buildings tileset
     map.addSource("waterfront-buildings", {
       type: "vector",
       url: "mapbox://tingyun6046710542.cmauiefxv0wqi1mphi07if5re-5oypb",
@@ -119,13 +123,61 @@ function initializeMap(center, style) {
       id: "waterfront-buildings-layer",
       type: "fill",
       source: "waterfront-buildings",
-      "source-layer": "waterfront-buildings", // update if your source-layer name is different
+      "source-layer": "waterfront-buildings",
       paint: {
         "fill-color": ["get", "fill"],
-        "fill-opacity": 0.6,
+        "fill-opacity": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          0.4,
+          0.2,
+        ],
         "fill-outline-color": ["get", "stroke"],
       },
     });
+
+    // Hover highlight for both layers
+    let hoveredId = null;
+    function setupHover(layerId) {
+      map.on("mousemove", layerId, (e) => {
+        if (e.features.length > 0) {
+          if (hoveredId !== null) {
+            map.setFeatureState(
+              {
+                source: map.getLayer(layerId).source,
+                sourceLayer: map.getLayer(layerId)["source-layer"],
+                id: hoveredId,
+              },
+              { hover: false }
+            );
+          }
+          hoveredId = e.features[0].id;
+          map.setFeatureState(
+            {
+              source: map.getLayer(layerId).source,
+              sourceLayer: map.getLayer(layerId)["source-layer"],
+              id: hoveredId,
+            },
+            { hover: true }
+          );
+        }
+      });
+      map.on("mouseleave", layerId, () => {
+        if (hoveredId !== null) {
+          map.setFeatureState(
+            {
+              source: map.getLayer(layerId).source,
+              sourceLayer: map.getLayer(layerId)["source-layer"],
+              id: hoveredId,
+            },
+            { hover: false }
+          );
+        }
+        hoveredId = null;
+      });
+    }
+    setupHover("waterfront-layer");
+    setupHover("waterfront-buildings-layer");
   });
 }
 
