@@ -92,6 +92,41 @@ function initializeMap(center, style) {
 
   map.on("move", updateBounds);
   updateBounds();
+
+  map.on("load", () => {
+    map.addSource("waterfront", {
+      type: "vector",
+      url: "mapbox://tingyun6046710542.cmaubh2ku26xm1nl3gd1jwvqc-8fa66",
+    });
+    map.addLayer({
+      id: "waterfront-layer",
+      type: "fill",
+      source: "waterfront",
+      "source-layer": "waterfront",
+      paint: {
+        "fill-color": ["get", "fill"],
+        "fill-opacity": 0.4,
+        "fill-outline-color": ["get", "stroke"],
+      },
+    });
+
+    // Add waterfront-buildings tileset
+    map.addSource("waterfront-buildings", {
+      type: "vector",
+      url: "mapbox://tingyun6046710542.cmauiefxv0wqi1mphi07if5re-5oypb",
+    });
+    map.addLayer({
+      id: "waterfront-buildings-layer",
+      type: "fill",
+      source: "waterfront-buildings",
+      "source-layer": "waterfront-buildings", // update if your source-layer name is different
+      paint: {
+        "fill-color": ["get", "fill"],
+        "fill-opacity": 0.6,
+        "fill-outline-color": ["get", "stroke"],
+      },
+    });
+  });
 }
 
 initializeMap(VANCOUVER_CONVENTION_CENTRE, "street");
